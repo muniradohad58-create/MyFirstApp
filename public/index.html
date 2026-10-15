@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Groq AI Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.8/purify.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-style">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <button id="new-chat-btn" class="btn btn-primary new-chat-btn">
+          <i data-lucide="plus"></i>
+          <span>New Chat</span>
+        </button>
+        <button id="sidebar-toggle-btn" class="btn btn-icon sidebar-toggle-btn" title="Toggle Sidebar">
+          <i data-lucide="panel-left"></i>
+        </button>
+      </div>
+
+      <div class="sidebar-conversations">
+        <div class="conversations-label">Recent Chats</div>
+        <div id="conversations-list" class="conversations-list"></div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button id="settings-btn" class="btn btn-ghost sidebar-footer-btn">
+          <i data-lucide="settings"></i>
+          <span>Settings</span>
+        </button>
+        <button id="theme-toggle-btn" class="btn btn-ghost sidebar-footer-btn">
+          <i data-lucide="sun" id="theme-icon"></i>
+          <span id="theme-text">Light Mode</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="chat-header">
+        <button id="mobile-sidebar-toggle" class="btn btn-icon mobile-sidebar-toggle">
+          <i data-lucide="menu"></i>
+        </button>
+        <div class="chat-header-title">
+          <span id="current-chat-title">New Conversation</span>
+        </div>
+        <div class="chat-header-actions">
+          <button id="clear-current-chat-btn" class="btn btn-icon" title="Clear Chat">
+            <i data-lucide="trash-2"></i>
+          </button>
+        </div>
+      </header>
+
+      <div id="welcome-screen" class="welcome-screen">
+        <div class="welcome-content">
+          <div class="welcome-logo">
+            <i data-lucide="bot" class="logo-icon"></i>
+          </div>
+          <h1>Hello! I'm your AI assistant.</h1>
+          <p class="welcome-subtitle">What would you like to explore today?</p>
+
+          <div class="suggestion-grid">
+            <div class="suggestion-card" data-prompt="Explain a difficult concept in quantum computing or astrophysics simply.">
+              <i data-lucide="book-open"></i>
+              <h3>Explain a difficult concept</h3>
+              <p>Break down complex topics into clear explanations.</p>
+            </div>
+            <div class="suggestion-card" data-prompt="Help me write or debug a clean asynchronous function in JavaScript.">
+              <i data-lucide="code"></i>
+              <h3>Help me write or debug code</h3>
+              <p>Get programming assistance across languages.</p>
+            </div>
+            <div class="suggestion-card" data-prompt="Improve or rewrite my writing to be more concise and engaging.">
+              <i data-lucide="edit-3"></i>
+              <h3>Improve or rewrite my writing</h3>
+              <p>Refine professional emails, essays, or docs.</p>
+            </div>
+            <div class="suggestion-card" data-prompt="Brainstorm creative ideas for launching a new SaaS project.">
+              <i data-lucide="lightbulb"></i>
+              <h3>Brainstorm ideas for a project</h3>
+              <p>Explore angles, features, and strategies.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="chat-messages" class="chat-messages hidden"></div>
+
+      <div class="chat-input-wrapper">
+        <div id="api-warning-banner" class="api-warning-banner hidden">
+          <i data-lucide="alert-triangle"></i>
+          <span>Groq API Key is missing on the server. Please check your .env configuration.</span>
+        </div>
+
+        <div class="input-container">
+          <textarea id="user-input" placeholder="Type a message..." rows="1"></textarea>
+          <div class="input-actions">
+            <button id="stop-btn" class="btn btn-icon hidden" title="Stop generating">
+              <i data-lucide="square"></i>
+            </button>
+            <button id="send-btn" class="btn btn-primary send-btn" title="Send message">
+              <i data-lucide="send"></i>
+            </button>
+          </div>
+        </div>
+        <div class="footer-disclaimer">
+          <span>Powered by Groq API</span>
+          <span>•</span>
+          <span>AI-generated content may be inaccurate. Verify important information.</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="settings-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Settings</h2>
+        <button id="close-modal-btn" class="btn btn-icon">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="setting-group">
+          <label for="setting-model">Groq Model Identifier</label>
+          <input type="text" id="setting-model" value="llama-3.3-70b-versatile" readonly>
+          <small>Configured via server environment variables (`GROQ_MODEL`).</small>
+        </div>
+        <div class="setting-group">
+          <label>Server Status</label>
+          <div id="server-status-indicator" class="status-badge checking">
+            <span class="dot"></span> <span id="server-status-text">Checking server connection...</span>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label>Conversation Data</label>
+          <button id="clear-all-history-btn" class="btn btn-danger">Clear All Chat History</button>
+          <small>Removes all saved local conversations from browser storage.</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
