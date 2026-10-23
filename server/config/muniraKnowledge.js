@@ -1,0 +1,22 @@
+const muniraKnowledge = {
+  name: "Munira",
+  builtBy: "Munira",
+  age: 21,
+  education: "Graduate",
+  university: "IQRA UNIVERSITY",
+  degree: "BS(CS)",
+  city: "karachi",
+  hobbies: "Exploring , Adventures",
+  favoriteColor: "Lilac",
+  favoriteFood: "Chinese",
+  skills: "CN , C++",
+  futureGoals: "Not yet decided",
+  semester: "6th sem",
+  CGPA : 3.36,
+  school : "saifiyah girls school",
+  college: "st.patrick college",
+  religion: "Muslim , dawoodi bohra",
+  "dawoodi bohra" :"They follow the office of the Dai al-Mutlaq, their spiritual leader.",
+  "leader/spiritual leader" : "His Holiness Dr.Syedna Mufaddal Saifuddin (TUS)",
+};
+module.exports = muniraKnowledge;
